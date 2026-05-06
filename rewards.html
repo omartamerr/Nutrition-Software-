@@ -1,0 +1,59 @@
+<!-- rewards.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriQuest – Rewards</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="rewards-container">
+    <h1>🏆 Your Rewards</h1>
+    <p>Total Points: <strong id="points-count">0</strong></p>
+
+    <div class="points-bar">
+      <div class="points-fill" id="points-fill">0 / 500</div>
+    </div>
+
+    <div class="badge-grid" id="badge-grid"></div>
+  </div>
+
+  <script>
+    const allBadges = [
+      { id: "first-plan", name: "First Plan", emoji: "🥗", goal: 10 },
+      { id: "tracker", name: "Weight Logger", emoji: "📈", goal: 50 },
+      { id: "streak-3", name: "3-Day Streak", emoji: "🔥", goal: 100 },
+      { id: "goal-hit", name: "Goal Achiever", emoji: "🏆", goal: 200 },
+      { id: "dedicated", name: "Dedicated User", emoji: "💪", goal: 500 }
+    ];
+
+    const userStats = JSON.parse(localStorage.getItem("userStats")) || {
+      points: 0,
+      badges: []
+    };
+
+    function renderRewards() {
+      document.getElementById("points-count").innerText = userStats.points;
+      const max = 500;
+      const percent = Math.min((userStats.points / max) * 100, 100);
+      const fill = document.getElementById("points-fill");
+      fill.style.width = percent + "%";
+      fill.innerText = `${userStats.points} / ${max}`;
+
+      const grid = document.getElementById("badge-grid");
+      grid.innerHTML = "";
+
+      allBadges.forEach(b => {
+        const unlocked = userStats.badges.includes(b.id) || userStats.points >= b.goal;
+        const div = document.createElement("div");
+        div.className = "badge" + (unlocked ? " unlocked" : "");
+        div.innerHTML = `${b.emoji}<br><small>${b.name}</small>`;
+        grid.appendChild(div);
+      });
+    }
+
+    renderRewards();
+  </script>
+</body>
+</html>

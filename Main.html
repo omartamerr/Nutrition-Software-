@@ -1,0 +1,233 @@
+<!-- main.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriQuest – Gamified Nutrition</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<!-- Toast Container -->
+<div id="tip-toast" style="display:none;position:fixed;bottom:20px;right:20px;background:#4CAF50;color:white;padding:14px 20px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:999;font-size:15px;max-width:300px;"></div>
+<body>
+  <div class="auth-toggle">
+    <button onclick="showForm('signup')">Sign Up</button>
+    <button onclick="showForm('login')">Log In</button>
+  </div>
+
+  <!-- SIGN UP -->
+  <section id="signup" class="content">
+    <h2>Create Account</h2>
+    <input type="text" id="signup-name" placeholder="Full Name">
+    <input type="email" id="signup-email" placeholder="Email">
+    <input type="password" id="signup-password" placeholder="Password">
+    <button onclick="signupUser()">Sign Up</button>
+    <p id="signup-message"></p>
+  </section>
+
+  <!-- LOG IN -->
+  <section id="login" class="content">
+    <h2>Log In</h2>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Password">
+    <button onclick="loginUser()">Log In</button>
+    <p id="login-message"></p>
+    <p><a href="#" onclick="showForm('password-request')">Forgot Password?</a></p>
+  </section>
+
+  <!-- PASSWORD RESET REQUEST -->
+  <section id="password-request" class="content">
+    <h2>Reset Password</h2>
+    <input type="email" id="reset-email" placeholder="Enter your email">
+    <button onclick="requestPasswordReset()">Send Reset Link</button>
+    <p id="reset-request-message"></p>
+  </section>
+
+  <!-- SET NEW PASSWORD -->
+  <section id="password-reset" class="content">
+    <h2>Choose New Password</h2>
+    <input type="text" id="reset-token-input" placeholder="Enter reset token">
+    <input type="password" id="reset-new-password" placeholder="New password">
+    <button onclick="resetPassword()">Reset Password</button>
+    <p id="reset-message"></p>
+  </section>
+
+  <!-- NAVIGATION (after login) -->
+  <div class="nav" id="main-nav" style="display: none;">
+    <a href="#" onclick="scrollToSection('dashboard')">Dashboard</a>
+    <a href="#" onclick="scrollToSection('mealplans')">Meal Plans</a>
+    <a href="#" onclick="scrollToSection('profile')">Profile</a>
+    <a href="#" onclick="scrollToSection('feedback')">Feedback</a>
+    <a href="rewards.html">Rewards</a>
+    <a href="#" onclick="scrollToSection('progress')">Progress</a>
+    <a href="#" onclick="scrollToSection('challenges')">Challenges</a>
+    <a href="#" onclick="scrollToSection('bmi')">BMI</a>
+    <a href="#" onclick="scrollToSection('calorie-tracker')">Calorie Tracker</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+  
+
+  <!-- DASHBOARD, PROFILE, MEAL PLANS, FEEDBACK, PROGRESS -->
+  <section id="dashboard" class="content active">
+    <div class="dashboard-wrapper">
+      <div class="dashboard-header">
+        <h1>Welcome, <span id="user-name">User</span></h1>
+        <p class="dashboard-sub">Your health summary for today</p>
+      </div>
+  
+      <div class="dashboard-grid">
+        <!-- Calories Remaining Card -->
+        <div class="dashboard-card">
+          <h3>Calories</h3>
+          <p class="chart-value"><strong id="calorie-total">0</strong> kcal remaining</p>
+          <p class="chart-info">Goal − Food + Exercise</p>
+        </div>
+  
+        <!-- Macros Overview Card -->
+        <div class="dashboard-card">
+          <h3>Macros</h3>
+          <div class="macro-list">
+            <div><strong id="macro-carbs">--</strong><span>Carbs (g)</span></div>
+            <div><strong id="macro-fat">--</strong><span>Fat (g)</span></div>
+            <div><strong id="macro-protein">--</strong><span>Protein (g)</span></div>
+          </div>
+        </div>
+  
+        <!-- Goal Weight Card -->
+        <div class="dashboard-card">
+          <h3>Goal Weight</h3>
+          <p>🎯 <strong id="goal-info">--</strong> kg</p>
+        </div>
+  
+        <!-- Countdown to Deadline -->
+        <div class="dashboard-card">
+          <h3>Deadline</h3>
+          <p id="countdown-display">Set a goal deadline</p>
+          <div id="deadline-setter" style="margin-top: 10px;">
+            <input type="date" id="goal-deadline" />
+            <button onclick="saveGoalDeadline()">Set Deadline</button>
+          </div>
+        </div>
+  
+        <!-- Streak / Tips Section -->
+        <div class="dashboard-card">
+          <h3>Streak</h3>
+          <p><strong id="streak-days">1</strong> Day Streak 🔥</p>
+          <p id="tip-of-the-day">"Stay hydrated and eat greens!"</p>
+        </div>
+      </div>
+  
+      <div class="dashboard-actions">
+        <div class="section">
+          <h2>Meal Plan</h2>
+          <button onclick="scrollToSection('mealplans')">View Plan</button>
+        </div>
+        <div class="section">
+          <h2>Profile</h2>
+          <button onclick="scrollToSection('profile')">Update Info</button>
+        </div>
+        <div class="section">
+          <h2>Rewards</h2>
+          <a href="rewards.html"><button>View Badges</button></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="profile" class="content">
+    <div class="profile-card">
+      <h2><i class="fa-solid fa-user-circle"></i> Edit Your Profile</h2>
+  
+      <form class="profile-form" onsubmit="event.preventDefault(); saveProfile();">
+        <div class="input-group">
+          <label for="age">Age</label>
+          <input type="number" id="age" placeholder="Enter your age">
+        </div>
+  
+        <div class="input-group">
+          <label for="weight">Weight (kg)</label>
+          <input type="number" id="weight" placeholder="Enter current weight">
+        </div>
+  
+        <div class="input-group">
+          <label for="goal">Goal Weight (kg)</label>
+          <input type="number" id="goal" placeholder="Enter goal weight">
+        </div>
+  
+        <div class="input-group">
+          <label for="profile-preferences">Diet Preferences</label>
+          <input type="text" id="profile-preferences" placeholder="e.g. vegan, low-carb">
+        </div>
+
+        <div class="input-group checkbox-group">
+          <input type="checkbox" id="enable-reminders">
+          <label for="enable-reminders">Enable Daily Health Tips</label>
+        </div>
+        
+        
+  
+        <button class="save-btn" type="submit">Save Changes</button>
+      </form>
+    </div>
+  </section>
+  
+  
+  
+
+  <section id="mealplans" class="content">
+    <h2>AI-Generated Meal Plan</h2>
+    <input type="text" id="meal-preferences" placeholder="e.g. vegetarian, high-protein">
+    <button onclick="generateMealPlanFromUI()">Generate Meal Plan</button>
+    <pre id="meal-plan-output">Your AI-powered meal plan will appear here...</pre>
+    <canvas id="nutrition-chart" width="400" height="400"></canvas>
+    <button onclick="requestApproval()">Request Approval</button>
+  </section>
+
+  <section id="feedback" class="content">
+    <h2>Send Feedback to Nutritionist</h2>
+    <textarea id="feedback-msg" placeholder="Type your message here..."></textarea>
+    <button onclick="sendFeedback()">Send</button>
+  </section>
+
+  <section id="progress" class="content">
+    <h2>Track Progress</h2>
+    <input type="number" id="current-weight" placeholder="Today's Weight (kg)">
+    <input type="number" id="current-calories" placeholder="Calories today (kcal)">
+    <button onclick="updateProgress()">Update</button>
+    <div class="progress-summary" style="margin-top: 20px;"></div>
+    <canvas id="progress-chart" width="400" height="300" style="margin-top: 20px;"></canvas>
+  </section>
+  <section id="calorie-tracker" class="content">
+    <h2>Calorie Tracker</h2>
+  
+    <div id="calorie-log-list"></div>
+  
+    <input type="text" id="food-name" placeholder="Food (e.g. Apple)">
+    <input type="number" id="food-calories" placeholder="Calories">
+    <button onclick="addFoodLog()">Add</button>
+  
+    <div id="calorie-summary" style="margin-top: 20px; font-weight: bold;"></div>
+  </section>
+  
+
+  <section id="bmi" class="content">
+    <h2>Calculate Your BMI</h2>
+  
+    <input type="number" id="bmi-weight" placeholder="Weight (kg)">
+    <input type="number" id="bmi-height" placeholder="Height (cm)">
+    <button onclick="calculateBMI()">Calculate BMI</button>
+  
+    <div id="bmi-result" style="margin-top: 15px; text-align: center; font-weight: bold;"></div>
+  </section>
+  
+
+  <section id="challenges" class="content">
+    <h2>Join a Challenge</h2>
+    <div id="challenge-list"></div>
+  </section>
+  
+
+  <script src="script.js"></script>
+</body>
+</html>
